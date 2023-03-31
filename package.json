@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:dev": "ts-node-dev -r tsconfig-paths/register --respawn main.ts",
+    "start": "ts-node  main.ts",
+    "pm2": "tsc && pm2 start main.ts --watch",
+    "build": "tsc",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -22,6 +26,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
+    "helmet": "^6.0.1",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
