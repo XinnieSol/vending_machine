@@ -7,5 +7,6 @@ export const database = {
 }
 
 export const appCredentials = {
-    PORT: process.env.PORT
+    PORT: process.env.PORT,
+    JWT_SECRET: process.env.JWT_SECRET
 }
