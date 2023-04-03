@@ -17,11 +17,11 @@ appMiddleware(app);
 const port = appCredentials.PORT || 8080;
 
 // app endpoint
-app.use("api/v1", routes());
+app.use("/api/v1", routes());
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 
 // not found route
-app.use("*", (req, res) => {
+app.use((req, res) => {
     res.send({
         message: "Resource not found",
         data: null,
@@ -31,8 +31,8 @@ app.use("*", (req, res) => {
 
 app.use(ErrorMiddleware);
 
-server.listen(port, () => {
-    connectDatabase();
+server.listen(port, async () => {
+    await connectDatabase();
     console.log(`...Listening on port ${port} 🔥🔥`);
 });
 server.on("error", (error) => {
