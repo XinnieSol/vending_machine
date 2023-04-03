@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
  * @param dataToEncrypt This is the data that will encryped
  */
 
-export function encryptData(
+export function generateToken(
     dataToEncrypt: object,
 ): string {
     const encryptedData = sign(dataToEncrypt, appCredentials.JWT_SECRET);
@@ -15,7 +15,7 @@ export function encryptData(
     return encryptedData;
 };
 
-export function decryptToken(tokenToDecrypt: string): string {
+export function decryptToken(tokenToDecrypt: string): any {
     const decryptedData = verify(tokenToDecrypt, appCredentials.JWT_SECRET);
     return decryptedData as any;
 };
