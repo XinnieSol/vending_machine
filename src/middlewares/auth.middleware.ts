@@ -4,7 +4,11 @@ import userService from "src/services/user.service";
 import { decryptToken } from "src/utils/auth.util";
 
 
-const getToken = (req: Request) => req.headers["x-access-token"];
+const getToken = (req: Request) => {
+    const auth = req.headers["authorization"];
+    const token = auth.split(' ')[1];
+    return token;
+}
 
 export const authenticate = async function (
     req: Request & any,
@@ -37,7 +41,7 @@ export const authenticate = async function (
 };
 
 
-export const authorize = async (
+export const authorizeSeller = async (
     req: Request & any,
     res: Response,
     next: NextFunction
@@ -51,9 +55,34 @@ export const authorize = async (
         throw new UnAuthorizedError("Unauthorized access");
 
     if (userDetails.role !== "seller")
-        throw new ForbiddenError("Only seller can perform this action");
+        throw new ForbiddenError("Only sellers can perform this action");
 
     req.user.authorized = true;
 
     next();
+}
+
+export const authorizeBuyer = async (
+    req: Request & any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const auth = req?.user;
+        if (!auth._id)
+            throw new UnAuthorizedError("Unauthorized access");
+
+        const userDetails = await userService.fetchUserById(auth._id);
+        if (!userDetails)
+            throw new UnAuthorizedError("Unauthorized access");
+
+        if (userDetails.role !== "buyer")
+            throw new ForbiddenError("Only buyers can perform this action");
+
+        req.user.authorized = true;
+
+        next();
+    } catch (error) {
+        next(error);
+    }
 }

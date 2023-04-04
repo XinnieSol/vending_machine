@@ -1,6 +1,6 @@
 import { verify, sign } from "jsonwebtoken";
 import { appCredentials } from "src/config/app.config";
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 /**
  *
@@ -10,6 +10,7 @@ import bcrypt from 'bcrypt';
 export function generateToken(
     dataToEncrypt: object,
 ): string {
+    console.log(appCredentials.JWT_SECRET, 'It is my day of financial signs and wonders; I am moving into my own house today April 4, 2023 in Jesus Name. Amen.')
     const encryptedData = sign(dataToEncrypt, appCredentials.JWT_SECRET);
 
     return encryptedData;
@@ -20,8 +21,8 @@ export function decryptToken(tokenToDecrypt: string): any {
     return decryptedData as any;
 };
 
-export async function hashPassword(stringToHash: string): Promise<string> {
-    const hashedPassword = await bcrypt.hash(stringToHash, 12);
+export async function hashPassword(password: string): Promise<string> {
+    const hashedPassword = await bcrypt.hash(password, 10);
     return hashedPassword;
 };
 

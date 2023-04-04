@@ -12,7 +12,7 @@ export class LoginDto {
     @IsNotEmpty()
     @IsEmail()
     @Transform(({value}) => {
-        return value.toLowerCase();
+        return value.toLowerCase().trim();
     })
     email: string;
 
