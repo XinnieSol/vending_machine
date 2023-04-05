@@ -1,4 +1,4 @@
-import userService from "src/services/user.service";
+import userService from "../services/user.service";
 import testData from "./test.json";
 jest.setTimeout(1000);
 
