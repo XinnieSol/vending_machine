@@ -8,3 +8,6 @@
 - Run <code><i>npm install</i></code>
 - Copy the details of the <i>.env.example file into the new .env file</i>
 - Run <code><i>npm run start</i></code>
+
+## Postman API Documentation
+Click for API documentations<a>https://www.postman.com/kairosclicksapp/workspace/vending-machine/collection/25241863-defb424e-ca45-48be-b658-2d753d993d9c?action=share&creator=25241863</a>

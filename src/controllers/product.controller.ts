@@ -22,10 +22,39 @@ class ProductController {
 
     async productDetails(req: Request, res: Response): Promise<any> {
         try {
-            const data = req.body;
             const productId = req.params.productId;
             const result = await ProductService.productDetails(productId);
-            return appResponse(res, 201, "Product details fetched successfully", result);
+            return appResponse(res, 200, "Product details fetched successfully", result);
+        } catch (error) {
+            appResponse(
+                res, 
+                error.statusCode, 
+                error.message ? error.message : "Internal server error"
+            );
+        }
+    }
+
+    async updateProduct(req: Request, res: Response): Promise<any> {
+        try {
+            const data = req.body;
+            const productId = req.params.productId;
+            const result = await ProductService.updateProduct(productId, data);
+            return appResponse(res, 201, "Product details updated successfully", result);
+        } catch (error) {
+            appResponse(
+                res, 
+                error.statusCode, 
+                error.message ? error.message : "Internal server error"
+            );
+        }
+    }
+
+    async deleteProduct(req: Request, res: Response): Promise<any> {
+        try {
+            const data = req.body;
+            const productId = req.params.productId;
+            await ProductService.deleteProduct(productId);
+            return appResponse(res, 200, "Product ddeleted successfully");
         } catch (error) {
             appResponse(
                 res, 
@@ -39,7 +68,7 @@ class ProductController {
         try {
             const queryParams = req.query;
             const result = await ProductService.fetchProducts(queryParams);
-            return appResponse(res, 201, "Products fetched successfully", result);
+            return appResponse(res, 200, "Products fetched successfully", result);
         } catch (error) {
             appResponse(
                 res, 
@@ -54,7 +83,7 @@ class ProductController {
             const buyerId = req.user._id;
             const productId = req.params.productId;
             const result = await ProductService.buyProduct(buyerId, productId, req.body);
-            return appResponse(res, 201, "Product bought successfully", result);
+            return appResponse(res, 200, "Product bought successfully", result);
         } catch (error) {
             appResponse(
                 res, 
