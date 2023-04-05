@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { ForbiddenError, UnAuthorizedError } from "src/helpers/app-error.helper";
+import { ForbiddenError, NotFoundError, UnAuthorizedError } from "src/helpers/app-error.helper";
+import productService from "src/services/product.service";
 import userService from "src/services/user.service";
 import { decryptToken } from "src/utils/auth.util";
 
@@ -82,6 +83,33 @@ export const authorizeBuyer = async (
 
         if (userDetails.role !== "buyer")
             throw new ForbiddenError("Only buyers can perform this action");
+
+        req.user.authorized = true;
+
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const authorizeProductSeller = async (
+    req: Request & any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const auth = req?.user;
+        const productId = req.params.productId;
+        if (!auth._id)
+            throw new UnAuthorizedError("Unauthorized access");
+
+        const userDetails = await userService.fetchUserById(auth._id);
+        if (!userDetails)
+            throw new UnAuthorizedError("Unauthorized access");
+
+        const productDetails = await productService.productDetails(productId);
+        if (!productDetails || productDetails.sellerId.toString() != auth._id.toString())
+            throw new ForbiddenError("Only seller and creator of this product can perform this action");
 
         req.user.authorized = true;
 

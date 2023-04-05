@@ -71,6 +71,7 @@ class ProductService {
                     "sellerData.coins": 0,
                     "sellerData.createdAt": 0,
                     "sellerData.updatedAt": 0,
+                    "sellerData.sesions": 0
                     
 
                 }
@@ -109,11 +110,21 @@ class ProductService {
         return result;
     }
 
+    async deleteProduct(productId: string | Types.ObjectId): Promise<any> {
+        productId = new Types.ObjectId(productId);
+        const product = await ProductModel.findById(productId);
+        if (!product)
+            throw new NotFoundError("Product does not exist");
+        await ProductModel.findByIdAndDelete(productId);
+
+        return;
+    }
+
     async updateProduct(
         productId: string | Types.ObjectId, 
         data: UpdateProductDTO
     ): Promise<any> {
-        const product = ProductModel.findById(productId);
+        const product = await ProductModel.findById(productId);
         if(!product)
             throw new NotFoundError("Product does not exist");
         const { name, price, description } = data;
@@ -121,6 +132,14 @@ class ProductService {
         name ? dataToUpdate.name = name  : null;
         price ? dataToUpdate.price = price  : null;
         description ? dataToUpdate.description = description  : null;
+
+        if (dataToUpdate.name) {
+            const exisiting = await ProductModel.findOne({ 
+                sellerId: product.sellerId, name 
+            });
+            if (exisiting)
+                throw new DuplicateError("Name already exist");
+        }
         
         const updatedProduct = await ProductModel.findByIdAndUpdate(productId, dataToUpdate);
 
