@@ -3,12 +3,17 @@ import { ProductDocument } from "src/interfaces/product.interface";
 
 const ProductSchema = new Schema<ProductDocument>(
     {
-        userId: {
+        sellerId: {
             type: Schema.Types.ObjectId,
-            required: true
+            required: true,
+            ref: "users"
         },
         name: {
             type: String,
+            required: true
+        },
+        price: {
+            type: Number,
             required: true
         },
         description: {

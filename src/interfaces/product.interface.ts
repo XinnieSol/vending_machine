@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 
 export interface ProductDocument {
-    userId: Types.ObjectId;
+    sellerId: Types.ObjectId;
     name: string;
     description: string;
     price: number;

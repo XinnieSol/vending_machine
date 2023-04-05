@@ -34,6 +34,9 @@ class UserService {
         if (!isValid)
             throw new UnAuthorizedError("Invalid credentials");
 
+        if (user.sessions.length)
+            throw new UnAuthorizedError("You have an active session. Logout from all active sessions");
+
         const token = generateToken(user.id);
         await UserModel.findByIdAndUpdate({ _id: user._id }, { sessions: [token] });
         const userDetails = user.toJSON();
@@ -42,17 +45,36 @@ class UserService {
         return { ...userDetails, token }
     }
 
+    async logoutSession(userId: ObjectId): Promise<void> {
+        const user = await UserModel.findById(userId);
+        if (!user) 
+            throw new NotFoundError("User does not exist");
+        await UserModel.findByIdAndUpdate(user._id, { sessions: [] });
+        return;
+    }
+
     async deposit(userId: ObjectId, data: DepositDTO): Promise<any> {
         const user = await UserModel.findById(userId);
         if (!user) 
             throw new NotFoundError("User does not exist");
-        const update = await UserModel.findOneAndUpdate({_id: userId}, {
+        await UserModel.findOneAndUpdate({_id: userId}, {
             $push: {
                 coins: { $each: data.coins }
             }
         });
 
-        return update;
+        return await UserModel.findById(userId);
+    }
+
+    async resetBalance(userId: ObjectId): Promise<any> {
+        const user = await UserModel.findById(userId);
+        if (!user) 
+            throw new NotFoundError("User does not exist");
+        await UserModel.findOneAndUpdate(
+            {_id: userId}, {$set: { coins: [] }
+        });
+
+        return await UserModel.findById(userId);
     }
 }
 

@@ -10,7 +10,6 @@ import * as bcrypt from 'bcrypt';
 export function generateToken(
     dataToEncrypt: object,
 ): string {
-    console.log(appCredentials.JWT_SECRET, 'It is my day of financial signs and wonders; I am moving into my own house today April 4, 2023 in Jesus Name. Amen.')
     const encryptedData = sign(dataToEncrypt, appCredentials.JWT_SECRET);
 
     return encryptedData;

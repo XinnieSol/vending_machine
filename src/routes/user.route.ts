@@ -22,11 +22,24 @@ export function userRouter() {
     );
 
     router.post(
+        "/logout", 
+        authenticate,
+        userController.logoutSessions
+    );
+
+    router.post(
         "/deposit", 
         authenticate,
         authorizeBuyer,
         validator(DepositDTO, "body"),
         userController.deposit
+    );
+
+    router.post(
+        "/reset", 
+        authenticate,
+        authorizeBuyer,
+        userController.resetBalance
     );
 
     return router;

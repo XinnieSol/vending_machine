@@ -46,20 +46,24 @@ export const authorizeSeller = async (
     res: Response,
     next: NextFunction
 ) => {
-    const auth = req?.user;
-    if (!auth._id)
-        throw new UnAuthorizedError("Unauthorized access");
+    try {
+        const auth = req?.user;
+        if (!auth._id)
+            throw new UnAuthorizedError("Unauthorized access");
 
-    const userDetails = await userService.fetchUserById(auth._id);
-    if (!userDetails)
-        throw new UnAuthorizedError("Unauthorized access");
+        const userDetails = await userService.fetchUserById(auth._id);
+        if (!userDetails)
+            throw new UnAuthorizedError("Unauthorized access");
 
-    if (userDetails.role !== "seller")
-        throw new ForbiddenError("Only sellers can perform this action");
+        if (userDetails.role !== "seller")
+            throw new ForbiddenError("Only sellers can perform this action");
 
-    req.user.authorized = true;
+        req.user.authorized = true;
 
-    next();
+        next();
+    } catch (error) {
+        next(error);
+    }
 }
 
 export const authorizeBuyer = async (
