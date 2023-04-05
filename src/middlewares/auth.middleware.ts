@@ -5,10 +5,20 @@ import userService from "src/services/user.service";
 import { decryptToken } from "src/utils/auth.util";
 
 
-const getToken = (req: Request) => {
-    const auth = req.headers["authorization"];
-    const token = auth.split(' ')[1];
-    return token;
+const getToken = (
+    req: Request & any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const auth = req.headers["authorization"];
+        if (!auth)
+            throw new UnAuthorizedError("Authrization token required");
+        const token = auth.split(' ')[1];
+        return token;
+    } catch (error) {
+        next(error);
+    }
 }
 
 export const authenticate = async function (
@@ -16,7 +26,7 @@ export const authenticate = async function (
     res: Response,
     next: NextFunction
 ) {
-    const token = getToken(req);
+    const token = getToken(req, res, next);
     if (!token) throw new UnAuthorizedError("Invalid token");
     if (typeof token !== "string")
         throw new UnAuthorizedError("Invalid token");
