@@ -1,11 +1,12 @@
-import * as dotenv from 'dotenv';
+import { config } from 'dotenv';
 
-dotenv.config();
+config();
 
 export const database = {
     DATABASE_URI: process.env.DB_URI
 }
 
 export const appCredentials = {
-    PORT: process.env.PORT
+    PORT: process.env.PORT,
+    JWT_SECRET: process.env.JWT_SECRET
 }

@@ -1,0 +1,15 @@
+{
+    "deposit": {
+        "userId": "",
+        "data": {
+            "coins": [100]
+        }
+    },
+    
+    "register": {
+        "username": "usernameofUser",
+        "email": "test1@mail.com",
+        "password": "12345678",
+        "role": "buyer"
+    }
+}
