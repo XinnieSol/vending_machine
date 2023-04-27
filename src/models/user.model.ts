@@ -54,6 +54,7 @@ UserSchema.set("toJSON", {
     versionKey: false,
     transform(doc, ret) {
         delete ret.password;
+        delete ret.sessions;
     }
 });
 
