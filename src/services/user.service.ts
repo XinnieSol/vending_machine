@@ -59,7 +59,7 @@ class UserService {
             throw new NotFoundError("User does not exist");
         await UserModel.findOneAndUpdate({_id: userId}, {
             $push: {
-                coins: { $each: data.coins }
+                coins:  data.coins 
             }
         });
 

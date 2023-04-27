@@ -149,7 +149,7 @@ class ProductService {
 
     async buyProduct(
         buyerId: ObjectId,
-        productId:string | Types.ObjectId, 
+        productId: string | Types.ObjectId, 
         data: BuyProductProductDTO
     ): Promise<any> {
         const { amountOfProduct } = data;
@@ -162,9 +162,10 @@ class ProductService {
         if (!buyer)
             throw new NotFoundError("buyer does not exist");
 
+        let coins = buyer.coins;
         let balance = 
-            buyer.coins.length > 0 
-            ? Number(buyer.coins.reduce((a: number, b: number) => a + b, 0))
+            coins.length
+            ? Number(coins.reduce((a: number, b: number) => a + b, 0))
             : 0
 
         const amountToPay = product.price * amountOfProduct;
@@ -172,72 +173,82 @@ class ProductService {
         if (balance < amountToPay)
             throw new BadRequestError("Insuffiecient coins");
 
-        let coins = (buyer.coins).sort((a: number, b: number) => a - b);
+        coins = coins.sort((a: number, b: number) => a - b);
         
+        const change = await this.processBalance(balance, coins, amountToPay);
+        await UserModel.findByIdAndUpdate(
+            buyerId, { $set: { coins: change } }
+        );
+        // credit seller;
+        
+    }
+
+    async processBalance(
+        balance: number, coins: Array<number | void>, amountToPay: number
+    ) {
+        if(balance === amountToPay) return [];
+
         if (coins.includes(amountToPay)) {
             coins.splice(coins.indexOf(amountToPay), 1);
-            await UserModel.findByIdAndUpdate(
-                buyerId, { $set: { coins } }
-            );
 
-            return {
-                totalSpent: amountToPay,
-                product,
-                change: coins
-            }
-        } else if(balance === amountToPay) {
-            await UserModel.findByIdAndUpdate(
-                buyerId, { $set: { coins: [] } }
-            );
+            return coins;
+        } 
 
-            return {
-                totalSpent: amountToPay,
-                product,
-                change: []
-            }
-        } else {
-            let coinAmount = 0
-            for (let i = coins.length - 1; i >= 0; i--) {
-                const coin = Number(coins[i]);
-                if (coin < amountToPay) {
-                    if (coinAmount < amountToPay) {
-                        coinAmount += coin;
-                        coins.splice(i, 1);
+        let coinAmount = 0;
+        for (let i = coins.length - 1; i >= 0; i--) {
+            let coin = Number(coins[i]);
+
+            if (coinAmount > amountToPay) {
+                coinAmount = coinAmount - amountToPay;
+                let totalChange = 0;
+                let change = [...coins]
+                let possibleChangeCoins = [100, 50, 20, 10, 5];
+                for (let j = 0; j < possibleChangeCoins.length; j++) {
+                    let possibleCoin = possibleChangeCoins[j];
+                    while ((totalChange + possibleCoin) <= coinAmount) {
+                        totalChange += possibleCoin;
+                        change.push(possibleCoin);
                     }
-                    
-                } else if (coin > amountToPay) {
-                    coins.splice(i, 1);
-                    coinAmount = coin - amountToPay;
-                     
-                    let totalChange = 0;
-                    let change = [...coins]
-                    while (totalChange < coinAmount) {
-                        totalChange += 5;
-                        change.push(5);
-                    }
-                    coins = change.sort((a: number, b: number) => a - b);
-                    await UserModel.findByIdAndUpdate(
-                        buyerId, { $set: { coins } }
-                    );
-                    return {
-                        totalSpent: amountToPay,
-                        product,
-                        change: coins
-                    }
-                    
                 }
+                coins = change.sort((a: number, b: number) => a - b);
+
+                return  coins;
+            }
+
+            if (coin < amountToPay) {
+                coinAmount += coin;
+                coins.splice(i, 1);
+
+            } else if (coin > amountToPay) {
+                coins.splice(i, 1);
+                coinAmount = coin - amountToPay;
+                let totalChange = 0;
+                let change = [...coins]
+                let possibleChangeCoins = [100, 50, 20, 10, 5];
+                for (let j = 0; j < possibleChangeCoins.length; j++) {
+                    let coin = possibleChangeCoins[j];
+                    while ((totalChange + coin) <= coinAmount) {
+                        totalChange += coin;
+                        change.push(coin);
+                    }
+                }
+                coins = change.sort((a: number, b: number) => a - b);
+
+                return coins;
                 
             }
-            await UserModel.findByIdAndUpdate(
-                buyerId, { $set: { coins } }
-            );
-            return {
-                totalSpent: amountToPay,
-                product,
-                change: coins
-            }
+            
         }
-        
+    }
+
+    async creditSeller(
+        sellerId: Types.ObjectId, coins: Array<number | void>
+    ): Promise<void> {
+        await UserModel.findByIdAndUpdate(sellerId, {
+            $push: {
+                coins: { $each: coins }
+            }
+        });
     }
 }
 
