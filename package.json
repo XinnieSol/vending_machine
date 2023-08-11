@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/XinnieSol/vending_machine.git"
   },
-  "keywords": [],
+  "keywords": ["vending machine", "money change"],
   "author": "",
   "license": "ISC",
   "bugs": {
